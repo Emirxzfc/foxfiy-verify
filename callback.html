@@ -1,41 +1,72 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Doğrulanıyor...</title>
+  <meta charset="UTF-8" />
+  <title>Foxfiy Verification</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+    }
+    .loader {
+      margin-top: 20px;
+      border: 4px solid #334155;
+      border-top: 4px solid #6366f1;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <h2>Giriş doğrulanıyor, lütfen bekleyin...</h2>
+  <h2>Doğrulama yapılıyor, lütfen bekleyin...</h2>
+  <div class="loader"></div>
 
   <script>
-    // URL'den "code" parametresini al
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    async function sendCode() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
 
-    if (!code) {
-      document.body.innerHTML = "<h2>Yetkilendirme kodu alınamadı. Lütfen tekrar deneyin.</h2>";
-    } else {
-      // Backend'e gönderilecek (örnek VDS API linki)
-      fetch('https://senin-vds-adresin.com/api/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code: code })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          document.body.innerHTML = "<h2>Başarıyla doğrulandı ✅</h2>";
+      if (!code) {
+        document.body.innerHTML = "<h2 style='color:red;'>Kod alınamadı. Lütfen doğrulama bağlantısını doğru kullanın.</h2>";
+        return;
+      }
+
+      try {
+        const response = await fetch('http://93.177.102.236:3000/api/verify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ code: code })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          document.body.innerHTML = "<h2 style='color:lime;'>Başarıyla doğrulandı! ✅</h2>";
         } else {
-          document.body.innerHTML = "<h2>Hata oluştu ❌: " + data.message + "</h2>";
+          document.body.innerHTML = `<h2 style='color:red;'>Hata oluştu: ${result.error || 'Bilinmeyen hata'}</h2>`;
         }
-      })
-      .catch(error => {
-        console.error(error);
-        document.body.innerHTML = "<h2>Sunucuya bağlanılamadı ❌</h2>";
-      });
+      } catch (err) {
+        console.error(err);
+        document.body.innerHTML = "<h2 style='color:red;'>Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.</h2>";
+      }
     }
+
+    sendCode();
   </script>
 </body>
 </html>
