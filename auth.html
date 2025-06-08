@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doğrulama İşlemi</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 50px; }
+    h2 { font-size: 22px; }
+  </style>
+</head>
+<body>
+  <h2>Doğrulama yapılıyor, lütfen bekleyin...</h2>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const userId = params.get("user");
+
+    if (!code || !userId) {
+      document.body.innerHTML = "<h2 style='color:red;'>Kod veya kullanıcı ID'si eksik!</h2>";
+    } else {
+      fetch("https://seninvds.com/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, userId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.body.innerHTML = "<h2 style='color:green;'>✅ Doğrulama başarılı!</h2>";
+        } else {
+          document.body.innerHTML = `<h2 style='color:red;'>❌ ${data.message}</h2>`;
+        }
+      })
+      .catch(() => {
+        document.body.innerHTML = "<h2 style='color:red;'>Sunucu hatası oluştu. Lütfen tekrar deneyin.</h2>";
+      });
+    }
+  </script>
+</body>
+</html>
