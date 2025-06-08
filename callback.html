@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Giriş Yapılıyor...</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 50px; }
+    h2 { font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Roblox hesabınızla giriş yapılıyor, lütfen bekleyin...</h2>
+
+  <script>
+    // URL'den ?code=... parametresini al
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (!code) {
+      document.body.innerHTML = "<h2 style='color:red;'>Doğrulama kodu alınamadı.</h2>";
+    } else {
+      // VDS üzerindeki backend'e kodu gönder
+      fetch("https://seninvds.com/api/oauth-callback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.body.innerHTML = `<h2 style='color:green;'>✅ Giriş başarılı!<br>Kullanıcı: ${data.username}</h2>`;
+        } else {
+          document.body.innerHTML = `<h2 style='color:red;'>❌ ${data.message}</h2>`;
+        }
+      })
+      .catch(() => {
+        document.body.innerHTML = "<h2 style='color:red;'>Sunucuya bağlanılamadı. Lütfen tekrar deneyin.</h2>";
+      });
+    }
+  </script>
+</body>
+</html>
