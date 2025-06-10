@@ -48,7 +48,10 @@
         const response = await fetch('https://71r5w2gd-6000.euw.devtunnels.ms/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: code })
+            body: JSON.stringify({
+                code: code,
+                discordId: state    // state'i discordId olarak ekle
+            })
         });
 
         const result = await response.json();
