@@ -36,38 +36,44 @@
 
   <script>
     async function sendCode() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const discordId = params.get('state'); // veya params.get('discordId'); eğer önceki düzeltmeyi uyguladıysanız
 
-      if (!code) {
-        document.body.innerHTML = "<h2 style='color:red;'>Kod alınamadı. Lütfen doğrulama bağlantısını doğru kullanın.</h2>";
-        return;
-      }
+  if (!code) {
+    document.body.innerHTML = "<h2 style='color:red;'>Kod alınamadı. Lütfen doğrulama bağlantısını doğru kullanın.</h2>";
+    return;
+  }
 
-      try {
-        const response = await fetch('https://71r5w2gd-6000.euw.devtunnels.ms/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                code: code,
-                discordId: state    // state'i discordId olarak ekle
-            })
-        });
+  if (!discordId) {
+    document.body.innerHTML = "<h2 style='color:red;'>Discord ID alınamadı. Lütfen doğrulama bağlantısını doğru kullanın.</h2>";
+    return;
+  }
 
-        const result = await response.json();
+  try {
+    const response = await fetch('https://71r5w2gd-6000.euw.devtunnels.ms/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: code,
+        discordId: discordId // discordId'yi body içinde gönder
+      })
+    });
 
-        if (response.ok) {
-          document.body.innerHTML = "<h2 style='color:lime;'>Başarıyla doğrulandı! ✅</h2>";
-        } else {
-          document.body.innerHTML = `<h2 style='color:red;'>Hata oluştu: ${result.error || 'Bilinmeyen hata'}</h2>`;
-        }
-      } catch (err) {
-        console.error(err);
-        document.body.innerHTML = "<h2 style='color:red;'>Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.</h2>";
-      }
+    const result = await response.json();
+
+    if (response.ok) {
+      document.body.innerHTML = "<h2 style='color:lime;'>Başarıyla doğrulandı! ✅</h2>";
+    } else {
+      document.body.innerHTML = `<h2 style='color:red;'>Hata oluştu: ${result.error || 'Bilinmeyen hata'}</h2>`;
     }
+  } catch (err) {
+    console.error(err);
+    document.body.innerHTML = "<h2 style='color:red;'>Sunucuya bağlanılamadı. Lütfen daha sonra tekrar deneyin.</h2>";
+  }
+}
 
-    sendCode();
+sendCode();
   </script>
 </body>
 </html>
